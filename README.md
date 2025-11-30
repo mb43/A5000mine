@@ -139,6 +139,42 @@ sudo systemctl status ae-dashboard
 sudo systemctl restart ae-dashboard
 ```
 
+### Installation errors on Ubuntu VMs
+
+**Problem**: NVIDIA driver or kernel headers installation fails
+
+**Common Errors**:
+- `E: Unable to locate package linux-headers-X.X.X-pve`
+- `nvidia-dkms-XXX` package errors
+- Multiple NVIDIA driver version conflicts
+
+**Solutions**:
+
+1. **Proxmox VM kernel headers issue**:
+   The updated installer scripts now automatically detect Proxmox kernels and install `linux-headers-generic` instead.
+
+2. **NVIDIA drivers in VMs**:
+   - NVIDIA drivers require GPU passthrough to work in VMs
+   - Without passthrough, driver installation may fail (this is expected)
+   - For testing without GPU: The software will install but mining won't work
+
+3. **Multiple driver version conflicts**:
+   The installer now removes conflicting NVIDIA packages before installation.
+
+4. **Manual cleanup** (if needed):
+   ```bash
+   # Remove all NVIDIA packages
+   sudo apt-get remove --purge nvidia-*
+   sudo apt-get autoremove
+
+   # Reinstall with single version
+   sudo apt-get install nvidia-driver-550 nvidia-utils-550
+   ```
+
+**Note**: If running in a VM for testing purposes, the installer will detect the virtual environment and continue despite driver installation failures. For actual mining, you need:
+- Bare metal installation, OR
+- VM with proper GPU passthrough configured
+
 ## Development
 
 ### Testing Changes
