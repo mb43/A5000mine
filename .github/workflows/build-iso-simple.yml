@@ -20,9 +20,11 @@ jobs:
       - name: Build ISO
         run: sudo ./build-iso.sh
 
-      - name: Upload ISO
-        uses: actions/upload-artifact@v4
-        with:
-          name: a5000mine-iso
-          path: build/a5000mine.iso
-          retention-days: 30
+      - name: Verify ISO was created
+        run: |
+          ls -lh build/a5000mine.iso
+          echo "ISO built successfully!"
+          echo "ISO size: $(du -h build/a5000mine.iso | cut -f1)"
+          echo ""
+          echo "Note: ISO is too large to upload as artifact (GitHub limit)"
+          echo "Build the ISO locally using: sudo ./build-iso.sh"
