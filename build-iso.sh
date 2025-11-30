@@ -86,13 +86,39 @@ apt-get install -y \
 log "Extracting base ISO"
 mkdir -p iso_extract iso_new
 mount -o loop "$UBUNTU_ISO" iso_extract || error "Failed to mount ISO"
+
+# Debug: Show ISO structure
+log "ISO contents:"
+ls -la iso_extract/ || true
+ls -la iso_extract/casper/ || true
+
 rsync -a iso_extract/ iso_new/ || error "Failed to copy ISO contents"
 umount iso_extract
+
+# Debug: Verify copy
+log "Copied ISO contents:"
+ls -la iso_new/casper/ || true
 
 # Extract squashfs
 log "Extracting squashfs filesystem"
 mkdir -p squashfs_root
-unsquashfs -d squashfs_root iso_new/casper/filesystem.squashfs || error "Failed to extract squashfs"
+
+# Find the squashfs file (location varies by Ubuntu version)
+SQUASHFS_FILE=""
+if [ -f "iso_new/casper/filesystem.squashfs" ]; then
+    SQUASHFS_FILE="iso_new/casper/filesystem.squashfs"
+elif [ -f "iso_new/casper/ubuntu-server-minimal.squashfs" ]; then
+    SQUASHFS_FILE="iso_new/casper/ubuntu-server-minimal.squashfs"
+elif [ -f "iso_new/casper/ubuntu-server.squashfs" ]; then
+    SQUASHFS_FILE="iso_new/casper/ubuntu-server.squashfs"
+else
+    log "ERROR: Could not find squashfs filesystem in:"
+    ls -la iso_new/casper/
+    error "Failed to locate squashfs file"
+fi
+
+log "Using squashfs file: $SQUASHFS_FILE"
+unsquashfs -d squashfs_root "$SQUASHFS_FILE" || error "Failed to extract squashfs"
 
 # Mount required filesystems for chroot
 log "Setting up chroot environment"
