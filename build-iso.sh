@@ -121,7 +121,7 @@ else
 fi
 
 log "Using squashfs file: $SQUASHFS_FILE"
-unsquashfs -d squashfs_root "$SQUASHFS_FILE" || error "Failed to extract squashfs"
+unsquashfs -f -d squashfs_root "$SQUASHFS_FILE" || error "Failed to extract squashfs"
 
 # Mount required filesystems for chroot
 log "Setting up chroot environment"
