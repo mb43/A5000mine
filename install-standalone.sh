@@ -49,18 +49,63 @@ log "Starting A5000mine installation"
 log "Updating package lists"
 apt-get update || error "Failed to update package lists"
 
+# Detect if running in VM or container
+IS_VIRTUAL=false
+if systemd-detect-virt --vm >/dev/null 2>&1 || systemd-detect-virt --container >/dev/null 2>&1; then
+    IS_VIRTUAL=true
+    VIRT_TYPE=$(systemd-detect-virt 2>/dev/null || echo "unknown")
+    log "Virtual environment detected: $VIRT_TYPE"
+fi
+
 # Install NVIDIA drivers
 log "Installing NVIDIA drivers (this may take several minutes)"
-apt-get install -y \
-    nvidia-driver-550 \
-    nvidia-utils-550 \
-    || log "WARNING: NVIDIA driver installation failed or partially completed"
+
+# Clean up any conflicting driver versions first
+log "Removing any existing NVIDIA driver packages"
+apt-get remove -y nvidia-* 2>/dev/null || true
+apt-get autoremove -y 2>/dev/null || true
+
+# Install single driver version
+DRIVER_VERSION="550"
+log "Installing NVIDIA driver version $DRIVER_VERSION"
+if ! apt-get install -y nvidia-driver-${DRIVER_VERSION} nvidia-utils-${DRIVER_VERSION} 2>&1 | tee /tmp/nvidia-install.log; then
+    log "WARNING: NVIDIA driver installation encountered errors"
+    if grep -q "nvidia-dkms" /tmp/nvidia-install.log; then
+        log "DKMS build failed - this is often due to missing kernel headers or VM environment"
+        if [ "$IS_VIRTUAL" = true ]; then
+            log "You're running in a virtual environment ($VIRT_TYPE)"
+            log "NVIDIA drivers may not work properly in VMs without GPU passthrough"
+            log "Continuing installation anyway..."
+        fi
+    fi
+fi
+rm -f /tmp/nvidia-install.log
 
 # Install dependencies
 log "Installing dependencies"
+
+# Determine correct kernel headers package
+KERNEL_VERSION=$(uname -r)
+HEADERS_PKG=""
+
+if [[ "$KERNEL_VERSION" == *"-pve" ]]; then
+    # Running Proxmox kernel - need to install generic Ubuntu headers
+    log "Proxmox kernel detected, installing generic Ubuntu headers"
+    HEADERS_PKG="linux-headers-generic"
+elif [[ "$KERNEL_VERSION" == *"-generic" ]] || [[ "$KERNEL_VERSION" == *"-lowlatency" ]]; then
+    # Standard Ubuntu kernel
+    HEADERS_PKG="linux-headers-$(uname -r)"
+else
+    # Other kernel - try generic headers
+    log "Non-standard kernel detected: $KERNEL_VERSION"
+    HEADERS_PKG="linux-headers-generic"
+fi
+
+log "Installing kernel headers: $HEADERS_PKG"
+
 apt-get install -y \
     build-essential \
-    linux-headers-$(uname -r) \
+    $HEADERS_PKG \
     wget \
     curl \
     jq \
@@ -68,7 +113,14 @@ apt-get install -y \
     python3-pip \
     htop \
     vim \
-    || error "Failed to install dependencies"
+    || {
+        if [ "$IS_VIRTUAL" = true ]; then
+            log "WARNING: Some dependencies failed to install (common in VMs)"
+            log "Continuing with available packages..."
+        else
+            error "Failed to install dependencies"
+        fi
+    }
 
 # Create installation directory
 log "Creating installation directory"

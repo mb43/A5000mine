@@ -12,8 +12,16 @@ fi
 # Detect environment
 HAS_GPU=false
 HAS_SYSTEMD=false
+IS_VIRTUAL=false
 lspci 2>/dev/null | grep -i nvidia > /dev/null && HAS_GPU=true
 [ -d /run/systemd/system ] && HAS_SYSTEMD=true
+
+# Detect virtualization
+if systemd-detect-virt --vm >/dev/null 2>&1 || systemd-detect-virt --container >/dev/null 2>&1; then
+    IS_VIRTUAL=true
+    VIRT_TYPE=$(systemd-detect-virt 2>/dev/null || echo "unknown")
+    echo "Virtual environment detected: $VIRT_TYPE"
+fi
 
 echo "[1/5] Updating package lists..."
 apt-get update
@@ -23,7 +31,19 @@ apt-get install -y jq curl wget python3 python3-pip
 
 if [ "$HAS_GPU" = true ]; then
     echo "[3/5] Installing NVIDIA drivers..."
-    apt-get install -y nvidia-driver-550 nvidia-utils-550
+
+    # Clean up conflicting versions
+    apt-get remove -y nvidia-* 2>/dev/null || true
+    apt-get autoremove -y 2>/dev/null || true
+
+    # Install single driver version
+    DRIVER_VERSION="550"
+    if ! apt-get install -y nvidia-driver-${DRIVER_VERSION} nvidia-utils-${DRIVER_VERSION}; then
+        echo "WARNING: NVIDIA driver installation failed"
+        if [ "$IS_VIRTUAL" = true ]; then
+            echo "Note: NVIDIA drivers may not work in VMs without GPU passthrough"
+        fi
+    fi
 else
     echo "[3/5] No NVIDIA GPU detected - skipping drivers"
 fi
