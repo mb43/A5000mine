@@ -1,0 +1,25 @@
+[Unit]
+Description=Aeternity Mining Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/ae-miner
+ExecStartPre=/opt/ae-miner/scripts/pre-start.sh
+ExecStart=/opt/ae-miner/scripts/start-miner.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/opt/ae-miner/logs/miner.log
+StandardError=append:/opt/ae-miner/logs/miner.error.log
+
+# Resource limits
+LimitNOFILE=65536
+
+# Security settings
+PrivateTmp=true
+NoNewPrivileges=false
+
+[Install]
+WantedBy=multi-user.target

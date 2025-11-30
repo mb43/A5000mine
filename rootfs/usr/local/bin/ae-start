@@ -1,0 +1,22 @@
+#!/bin/bash
+# ae-start - Start mining service
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This command must be run as root (use sudo)"
+    exit 1
+fi
+
+echo "Starting A5000mine services..."
+
+# Start miner
+systemctl start ae-miner
+sleep 2
+
+# Start dashboard
+systemctl start ae-dashboard 2>/dev/null || true
+
+echo "Services started!"
+echo ""
+echo "Check status: ae-status"
+echo "View logs: ae-logs -f"

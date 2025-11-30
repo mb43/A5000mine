@@ -1,0 +1,18 @@
+{
+    "wallet": "ak_CONFIGURE_ME",
+    "worker_name": "rig-01",
+    "pool": {
+        "url": "stratum+tcp://ae.2miners.com:4040",
+        "backup_url": "stratum+tcp://ae.f2pool.com:4040"
+    },
+    "gpu": {
+        "device_id": 0,
+        "power_limit": 230,
+        "core_offset": 0,
+        "mem_offset": 0
+    },
+    "dashboard": {
+        "enabled": true,
+        "port": 8080
+    }
+}

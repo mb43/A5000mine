@@ -1,0 +1,16 @@
+[Unit]
+Description=Aeternity Mining Dashboard
+After=network.target ae-miner.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/ae-miner/dashboard
+ExecStart=/usr/bin/python3 /opt/ae-miner/dashboard/server.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/ae-miner/logs/dashboard.log
+StandardError=append:/opt/ae-miner/logs/dashboard.error.log
+
+[Install]
+WantedBy=multi-user.target
