@@ -12,19 +12,21 @@ A plug-and-play bootable Linux OS for mining Aeternity (AE) cryptocurrency on NV
 
 ## Quick Start
 
-### Method 1: Bootable USB (Recommended)
+### Method 1: Download Pre-built ISO (Easiest)
 
-1. **Build the ISO**:
+1. **Download the latest ISO** from [GitHub Releases](https://github.com/mb43/A5000mine/releases)
+
+2. **Verify the checksum**:
    ```bash
-   sudo ./build-iso.sh
+   sha256sum -c SHA256SUMS
    ```
 
-2. **Flash to USB** (8GB+ required):
+3. **Flash to USB** (8GB+ required):
    ```bash
-   sudo dd if=build/a5000mine.iso of=/dev/sdX bs=4M status=progress
+   sudo dd if=a5000mine.iso of=/dev/sdX bs=4M status=progress oflag=sync
    ```
 
-3. **Boot from USB** and run the configuration wizard:
+4. **Boot from USB** and run the configuration wizard:
    ```bash
    sudo ae-config
    ```
@@ -39,6 +41,16 @@ A plug-and-play bootable Linux OS for mining Aeternity (AE) cryptocurrency on NV
 sudo ./install-standalone.sh
 sudo ae-config
 ```
+
+### Method 3: Build ISO from Source
+
+If you want to customize the ISO or build it yourself:
+
+```bash
+sudo ./build-iso.sh
+```
+
+**Note:** Building the ISO requires significant disk space (~15GB) and can take 20-30 minutes. For most users, downloading the pre-built ISO from releases is recommended.
 
 ## Hardware Requirements
 

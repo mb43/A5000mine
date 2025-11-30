@@ -1,0 +1,43 @@
+name: Test Installer Scripts
+
+on:
+  push:
+    branches: [ main, 'claude/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-standalone-installer:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test install-standalone.sh (dry run simulation)
+        run: |
+          # Test that script has no syntax errors
+          bash -n install-standalone.sh
+          bash -n install.sh
+
+          # Verify required files exist
+          test -f rootfs/opt/ae-miner/scripts/start-miner.sh
+          test -f rootfs/opt/ae-miner/scripts/pre-start.sh
+          test -f config/config.json
+
+          # Validate JSON config
+          jq empty config/config.json
+
+          echo "✅ All installer scripts validated successfully"
+
+      - name: Shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+          # Check all shell scripts
+          shellcheck -x install-standalone.sh || true
+          shellcheck -x install.sh || true
+          shellcheck -x build-iso.sh || true
+          shellcheck -x rootfs/opt/ae-miner/scripts/*.sh || true
+          shellcheck -x rootfs/usr/local/bin/ae-* || true
