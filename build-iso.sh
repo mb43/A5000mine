@@ -101,6 +101,9 @@ ls -la iso_new/casper/ || true
 
 # Extract squashfs
 log "Extracting squashfs filesystem"
+
+# Clean up any existing extraction directory
+rm -rf squashfs_root
 mkdir -p squashfs_root
 
 # Find the squashfs file (location varies by Ubuntu version)
