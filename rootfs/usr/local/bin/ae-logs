@@ -1,0 +1,41 @@
+#!/bin/bash
+# ae-logs - View miner logs
+
+LOG_FILE="/opt/ae-miner/logs/miner.log"
+ERROR_LOG="/opt/ae-miner/logs/miner.error.log"
+
+if [ "$1" = "-f" ] || [ "$1" = "--follow" ]; then
+    # Follow logs in real-time
+    if [ -f "$LOG_FILE" ]; then
+        tail -f "$LOG_FILE"
+    else
+        echo "Log file not found: $LOG_FILE"
+        exit 1
+    fi
+elif [ "$1" = "-e" ] || [ "$1" = "--errors" ]; then
+    # Show error logs
+    if [ -f "$ERROR_LOG" ]; then
+        less "$ERROR_LOG"
+    else
+        echo "Error log file not found: $ERROR_LOG"
+        exit 1
+    fi
+elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage: ae-logs [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -f, --follow    Follow logs in real-time"
+    echo "  -e, --errors    Show error logs"
+    echo "  -h, --help      Show this help message"
+    echo ""
+    echo "Default: Show last 50 lines of logs"
+else
+    # Show last 50 lines
+    if [ -f "$LOG_FILE" ]; then
+        tail -n 50 "$LOG_FILE" | less
+    else
+        echo "Log file not found: $LOG_FILE"
+        echo "Mining may not have started yet."
+        exit 1
+    fi
+fi

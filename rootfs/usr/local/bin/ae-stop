@@ -1,0 +1,20 @@
+#!/bin/bash
+# ae-stop - Stop mining service
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This command must be run as root (use sudo)"
+    exit 1
+fi
+
+echo "Stopping A5000mine services..."
+
+# Stop miner
+systemctl stop ae-miner
+
+# Stop dashboard
+systemctl stop ae-dashboard 2>/dev/null || true
+
+echo "Services stopped!"
+echo ""
+echo "To restart: ae-start"
