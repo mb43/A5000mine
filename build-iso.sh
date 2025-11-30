@@ -20,9 +20,14 @@ fi
 # Configuration
 WORK_DIR="$(pwd)/build"
 ISO_NAME="a5000mine.iso"
-UBUNTU_VERSION="22.04"
-UBUNTU_ISO="ubuntu-${UBUNTU_VERSION}-live-server-amd64.iso"
-UBUNTU_URL="https://releases.ubuntu.com/${UBUNTU_VERSION}/${UBUNTU_ISO}"
+UBUNTU_VERSION="22.04.5"
+UBUNTU_ISO="ubuntu-22.04.5-live-server-amd64.iso"
+# Try multiple mirrors for reliability
+UBUNTU_URLS=(
+    "https://releases.ubuntu.com/jammy/${UBUNTU_ISO}"
+    "https://releases.ubuntu.com/22.04/${UBUNTU_ISO}"
+    "http://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/${UBUNTU_ISO}"
+)
 
 # Custom configuration support
 CUSTOM_CONFIG="${CUSTOM_CONFIG:-}"
@@ -43,7 +48,22 @@ cd "$WORK_DIR"
 # Download Ubuntu base ISO if not present
 if [ ! -f "$UBUNTU_ISO" ]; then
     log "Downloading Ubuntu ${UBUNTU_VERSION} base ISO"
-    wget -c "$UBUNTU_URL" || error "Failed to download Ubuntu ISO"
+    DOWNLOAD_SUCCESS=false
+    for URL in "${UBUNTU_URLS[@]}"; do
+        log "Trying mirror: $URL"
+        if wget -c --timeout=60 "$URL" -O "$UBUNTU_ISO"; then
+            DOWNLOAD_SUCCESS=true
+            log "Successfully downloaded from $URL"
+            break
+        else
+            log "Failed to download from $URL, trying next mirror..."
+            rm -f "$UBUNTU_ISO"
+        fi
+    done
+
+    if [ "$DOWNLOAD_SUCCESS" = false ]; then
+        error "Failed to download Ubuntu ISO from all mirrors"
+    fi
 else
     log "Ubuntu ISO already exists, skipping download"
 fi
