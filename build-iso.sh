@@ -24,6 +24,15 @@ UBUNTU_VERSION="22.04"
 UBUNTU_ISO="ubuntu-${UBUNTU_VERSION}-live-server-amd64.iso"
 UBUNTU_URL="https://releases.ubuntu.com/${UBUNTU_VERSION}/${UBUNTU_ISO}"
 
+# Custom configuration support
+CUSTOM_CONFIG="${CUSTOM_CONFIG:-}"
+if [ -n "$CUSTOM_CONFIG" ] && [ -f "$CUSTOM_CONFIG" ]; then
+    log "Using custom configuration: $CUSTOM_CONFIG"
+    CONFIG_FILE="$CUSTOM_CONFIG"
+else
+    CONFIG_FILE="$(pwd)/config/config.json"
+fi
+
 log "Starting A5000mine ISO build process"
 
 # Create work directory
@@ -88,6 +97,12 @@ if [ -d "$(pwd)/../rootfs" ]; then
     rsync -a $(pwd)/../rootfs/ squashfs_root/
 else
     log "WARNING: No rootfs directory found, skipping overlay"
+fi
+
+# Copy custom configuration if provided
+if [ -n "$CUSTOM_CONFIG" ] && [ -f "$CUSTOM_CONFIG" ]; then
+    log "Installing custom configuration"
+    cp "$CUSTOM_CONFIG" squashfs_root/opt/ae-miner/config.json
 fi
 
 # Chroot and install packages
