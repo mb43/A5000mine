@@ -5,19 +5,29 @@
     "wallet": "kaspa:CONFIGURE_ME",
     "pool": {
         "primary": {
+            "name": "EMCD",
             "url": "stratum+tcp://kas.emcd.io:3333",
-            "worker_format": "{wallet}.{worker_name}",
-            "password": "x"
+            "worker_format": "{wallet}",
+            "password": "x",
+            "fee_percent": 0,
+            "min_payout_kas": 1,
+            "note": "0% fee - highest GBP per day"
         },
         "backup1": {
+            "name": "EMCD Backup",
             "url": "stratum+tcp://kas.emcd.io:7777",
-            "worker_format": "{wallet}.{worker_name}",
-            "password": "x"
+            "worker_format": "{wallet}",
+            "password": "x",
+            "fee_percent": 0,
+            "min_payout_kas": 1
         },
         "backup2": {
+            "name": "2Miners",
             "url": "stratum+tcp://eu-kas.2miners.com:2020",
             "worker_format": "{wallet}.{worker_name}",
-            "password": "x"
+            "password": "x",
+            "fee_percent": 1,
+            "min_payout_kas": 50
         }
     },
     "miners": [
@@ -41,10 +51,17 @@
         "power_unit": "W"
     },
     "income": {
-        "daily_per_miner_gbp": 82,
+        "daily_per_miner_gbp": 83.50,
+        "monthly_per_miner_gbp": 2507.50,
+        "yearly_per_miner_gbp": 30500,
         "currency": "GBP",
-        "kas_per_day": 630,
-        "payout_threshold": 100
+        "kas_per_day": 1781,
+        "kas_price_gbp": 0.0463,
+        "pool_fee_percent": 0,
+        "min_payout_kas": 1,
+        "hardware_cost_gbp": 600,
+        "payback_days": 7.2,
+        "note": "Based on KAS @ £0.0463, 29 Nov 2025, 0% pool fee (EMCD)"
     },
     "remote_access": {
         "enabled": true,
