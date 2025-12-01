@@ -29,9 +29,33 @@
         "algorithm": "Cuckoo Cycle C29AE"
     },
     "income": {
-        "daily_per_gpu_gbp": 8.5,
+        "daily_per_gpu_gbp": 0.34,
+        "monthly_per_gpu_gbp": 10.20,
+        "yearly_per_gpu_gbp": 124.10,
         "currency": "GBP",
-        "note": "Update based on current AE price and network difficulty"
+        "ae_per_day": 2.53,
+        "ae_price_gbp": 0.13,
+        "note": "Based on real Dec 2025 WhatToMine data - AE currently has very low profitability",
+        "alternatives": {
+            "ethereum_classic": {
+                "daily_gbp": 0.47,
+                "hashrate": "99 MH/s",
+                "algorithm": "Ethash",
+                "note": "Most profitable option - consider switching"
+            },
+            "ravencoin": {
+                "daily_gbp": 0.25,
+                "hashrate": "45 MH/s",
+                "algorithm": "KawPoW"
+            },
+            "ergo": {
+                "daily_gbp": 0.39,
+                "hashrate": "240 MH/s",
+                "algorithm": "Autolykos"
+            }
+        },
+        "electricity": "FREE",
+        "source": "WhatToMine, Kryptex - Dec 1, 2025"
     },
     "dashboard": {
         "enabled": true,
