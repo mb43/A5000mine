@@ -1,16 +1,67 @@
-# A5000mine - Aeternity Mining Live USB
+# A5000mine - Multi-Operation Cryptocurrency Mining Platform
 
-A plug-and-play bootable Linux OS for mining Aeternity (AE) cryptocurrency on NVIDIA A5000 GPUs.
+A comprehensive mining platform supporting multiple discrete operations:
+- **Aeternity (AE)** - GPU mining with NVIDIA A5000
+- **Kaspa (KAS)** - ASIC mining with IceRiver KS5M
+- **Zcash (ZEC)** - ASIC mining with Antminer Z15 Pro (coming soon)
 
 ## Features
 
+- **Multi-Operation Support**: Run GPU and ASIC miners simultaneously
+- **Unified Dashboard**: Monitor all operations with real-time stats and income projections
+- **Modular Architecture**: Easily add new mining operations
+- **Remote Access**: Secure remote monitoring via Tailscale
+- **Automated Management**: Watchdog scripts, auto-reboot, health monitoring
+- **Income Tracking**: Real-time daily/monthly/yearly projections in GBP
+
+### Aeternity (GPU) Features
 - **Bootable Live USB**: Based on Ubuntu 22.04 LTS
 - **Zero Configuration**: Just add your wallet address and start mining
 - **Optimized for A5000**: Achieves 4-6 G/s hashrate at 180-230W
-- **Web Dashboard**: Monitor mining stats at http://localhost:8080
-- **Auto-start Mining**: Begins mining immediately after boot
+- **Expected Income**: ~£8.50 per GPU per day
 
-## Quick Start
+### Kaspa (ASIC) Features
+- **Quick Deploy**: 12-minute setup per KS5M miner
+- **15 TH/s per miner**: Industrial-scale hashrate
+- **Remote Management**: Access miner web UIs via Tailscale
+- **Expected Income**: ~£82 per miner per day
+- **Auto-recovery**: Watchdog reboots dead miners automatically
+
+## 🚀 Quick Navigation
+
+| Mining Operation | Hardware | Setup Guide | Daily Income |
+|-----------------|----------|-------------|--------------|
+| **Aeternity** | NVIDIA A5000 GPU | [See below](#aeternity-gpu-mining-setup) | ~£8.50 per GPU |
+| **Kaspa** | IceRiver KS5M ASIC | [Kaspa Guides](operations/kaspa/guides/) | ~£82 per miner |
+| **Zcash** | Antminer Z15 Pro | [Coming Soon](operations/zcash/) | ~£45 per miner (est.) |
+| **Unified Dashboard** | Any browser | [Dashboard Setup](#unified-dashboard) | Monitor all operations |
+
+## Unified Dashboard
+
+Monitor all your mining operations in one place with real-time stats and income projections.
+
+### Start the Dashboard
+
+```bash
+# Clone the repository
+git clone https://github.com/mb43/A5000mine.git
+cd A5000mine
+
+# Start unified dashboard
+python3 dashboard/unified-server.py
+
+# Access at: http://localhost:8090/unified
+```
+
+### Dashboard Features
+
+- **Real-time monitoring** of all mining operations
+- **Income projections**: Daily, Monthly, Yearly in GBP
+- **GPU stats**: Temperature, power, utilization (Aeternity)
+- **ASIC status**: Per-miner hashrate and health (Kaspa/Zcash)
+- **Auto-refresh**: Updates every 5 seconds
+
+## Aeternity (GPU Mining) Setup
 
 ### Method 1: Download Pre-built ISO (Easiest)
 
@@ -114,6 +165,80 @@ After editing, restart mining:
 ```bash
 sudo systemctl restart ae-miner
 ```
+
+---
+
+## Kaspa (ASIC Mining) Setup
+
+Complete guides for deploying IceRiver KS5M ASIC miners.
+
+### Prerequisites (One-Time Per Site)
+
+| Item | Model | Price (GBP) |
+|------|-------|-------------|
+| 5G Router | Zyxel NR5103E + Poynting antenna | £245-£265 |
+| 5G SIM | Smarty unlimited data | £25-£40/mo |
+| Raspberry Pi | Pi 5 8GB kit | £105 |
+| Switch | TP-Link TL-SG108 (8-port) | £18 |
+| **Total** | **One-off per site** | **~£500** |
+
+**Paid back in <7 days with just one KS5M!**
+
+### Quick Deploy (12 Minutes Per Miner)
+
+1. **Set up Raspberry Pi** (one-time):
+   ```bash
+   cd operations/kaspa/scripts
+   sudo ./setup-pi.sh
+   ```
+
+2. **Deploy each KS5M**:
+   - See [Quick Deploy Guide](operations/kaspa/guides/quick-deploy.md)
+   - Full copy-paste instructions
+   - Router config, miner setup, pool configuration
+
+3. **Configure wallet & pools**:
+   - See [Wallet Setup Guide](operations/kaspa/guides/wallet-setup.md)
+   - Kaspium wallet installation
+   - EMCD pool account
+   - Pool configuration
+
+4. **Enable remote access**:
+   - See [Remote Access Guide](operations/kaspa/guides/remote-access.md)
+   - Tailscale setup
+   - Nginx proxy configuration
+   - Access miners from anywhere
+
+### Performance Per KS5M
+
+| Metric | Value |
+|--------|-------|
+| Hashrate | 15 TH/s |
+| Power Consumption | 3,400W |
+| Daily KAS | 630 KAS |
+| Daily Income | £82-£85 |
+| Pool | EMCD (1% fee) |
+
+### Scaling
+
+| Miners | Power | Monthly Income (£) | Notes |
+|--------|-------|-------------------|-------|
+| 1 | 3.4 kW | £2,460 | Single socket |
+| 5 | 17 kW | £12,300 | Still manageable |
+| 10 | 34 kW | £24,600 | Need 3-phase |
+| 20 | 68 kW | £49,200 | Container setup |
+
+### Remote Access
+
+Access miners via Tailscale from anywhere:
+
+```
+http://kaspa-site-01:8080  (Miner 1)
+http://kaspa-site-01:8081  (Miner 2)
+http://kaspa-site-01:8082  (Miner 3)
+```
+
+---
 
 ## Supported Mining Pools
 

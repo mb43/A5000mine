@@ -1,0 +1,40 @@
+{
+    "operation": "aeternity",
+    "hardware": "GPU",
+    "gpu_model": "NVIDIA A5000",
+    "wallet": "ak_CONFIGURE_ME",
+    "worker_name": "rig-01",
+    "pool": {
+        "primary": {
+            "url": "stratum+tcp://ae.2miners.com:4040",
+            "fee": 1
+        },
+        "backup": {
+            "url": "stratum+tcp://ae.f2pool.com:4040",
+            "fee": 2
+        }
+    },
+    "gpu": {
+        "device_id": 0,
+        "power_limit": 230,
+        "core_offset": 0,
+        "mem_offset": 0,
+        "vram": 24
+    },
+    "performance": {
+        "hashrate_per_gpu": 5.0,
+        "unit": "G/s",
+        "power_per_gpu": 230,
+        "power_unit": "W",
+        "algorithm": "Cuckoo Cycle C29AE"
+    },
+    "income": {
+        "daily_per_gpu_gbp": 8.5,
+        "currency": "GBP",
+        "note": "Update based on current AE price and network difficulty"
+    },
+    "dashboard": {
+        "enabled": true,
+        "port": 8080
+    }
+}

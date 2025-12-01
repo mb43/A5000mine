@@ -1,0 +1,55 @@
+{
+    "operation": "kaspa",
+    "hardware": "ASIC",
+    "miner_model": "KS5M",
+    "wallet": "kaspa:CONFIGURE_ME",
+    "pool": {
+        "primary": {
+            "url": "stratum+tcp://kas.emcd.io:3333",
+            "worker_format": "{wallet}.{worker_name}",
+            "password": "x"
+        },
+        "backup1": {
+            "url": "stratum+tcp://kas.emcd.io:7777",
+            "worker_format": "{wallet}.{worker_name}",
+            "password": "x"
+        },
+        "backup2": {
+            "url": "stratum+tcp://eu-kas.2miners.com:2020",
+            "worker_format": "{wallet}.{worker_name}",
+            "password": "x"
+        }
+    },
+    "miners": [
+        {
+            "name": "Miner01",
+            "ip": "192.168.1.100",
+            "port": 80,
+            "proxy_port": 8080
+        }
+    ],
+    "network": {
+        "router": "Zyxel NR5103E",
+        "connection": "5G",
+        "pi_ip": "192.168.1.10",
+        "subnet": "192.168.1.0/24"
+    },
+    "performance": {
+        "hashrate_per_miner": 15.0,
+        "unit": "TH/s",
+        "power_per_miner": 3400,
+        "power_unit": "W"
+    },
+    "income": {
+        "daily_per_miner_gbp": 82,
+        "currency": "GBP",
+        "kas_per_day": 630,
+        "payout_threshold": 100
+    },
+    "remote_access": {
+        "enabled": true,
+        "method": "tailscale",
+        "hostname": "kaspa-site-01",
+        "nginx_proxy": true
+    }
+}
