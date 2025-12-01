@@ -29,13 +29,15 @@
         "algorithm": "Cuckoo Cycle C29AE"
     },
     "income": {
-        "daily_per_gpu_gbp": 0.34,
-        "monthly_per_gpu_gbp": 10.20,
-        "yearly_per_gpu_gbp": 124.10,
+        "daily_per_gpu_gbp": 0.068,
+        "monthly_per_gpu_gbp": 2.04,
+        "yearly_per_gpu_gbp": 24.82,
         "currency": "GBP",
-        "ae_per_day": 2.53,
-        "ae_price_gbp": 0.13,
-        "note": "Based on real Dec 2025 WhatToMine data - AE currently has very low profitability",
+        "ae_per_day": 17.2,
+        "ae_price_usd": 0.004991,
+        "ae_price_gbp": 0.00393,
+        "network_hashrate_gps": 5800,
+        "note": "Based on 2Miners calculator Dec 2025 - AE mining is NOT profitable",
         "alternatives": {
             "ethereum_classic": {
                 "daily_gbp": 0.47,
