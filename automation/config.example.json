@@ -1,0 +1,110 @@
+{
+  "_comment": "A5000mine Automated Crypto Converter Configuration",
+  "_warning": "NEVER commit this file with real API keys! Copy to config.json and add to .gitignore",
+
+  "daily_conversion": {
+    "enabled": true,
+    "target_stablecoin": "USDT",
+    "operations": [
+      {
+        "name": "aeternity",
+        "crypto_symbol": "AE",
+        "wallet": "ak_YOUR_WALLET_ADDRESS"
+      },
+      {
+        "name": "kaspa",
+        "crypto_symbol": "KAS",
+        "wallet": "kaspa:YOUR_WALLET_ADDRESS"
+      },
+      {
+        "name": "zcash",
+        "crypto_symbol": "ZEC",
+        "wallet": "t1_YOUR_WALLET_ADDRESS"
+      }
+    ],
+    "min_amounts": {
+      "aeternity": 100,
+      "kaspa": 500,
+      "zcash": 1
+    },
+    "schedule": "daily at 00:00 UTC"
+  },
+
+  "weekly_conversion": {
+    "enabled": true,
+    "provider": "wise",
+    "min_amount_usd": 500,
+    "destination": {
+      "account_type": "bank_account",
+      "sort_code": "XX-XX-XX",
+      "account_number": "XXXXXXXX",
+      "account_name": "Your Name"
+    },
+    "schedule": "weekly on Monday at 00:00 UTC"
+  },
+
+  "exchanges": {
+    "primary": "kraken",
+
+    "kraken": {
+      "api_key": "YOUR_KRAKEN_API_KEY",
+      "api_secret": "YOUR_KRAKEN_API_SECRET",
+      "enabled": true,
+      "supported_pairs": ["AE/USD", "KAS/USD", "ZEC/USD", "USD/USDT"]
+    },
+
+    "binance": {
+      "api_key": "YOUR_BINANCE_API_KEY",
+      "api_secret": "YOUR_BINANCE_API_SECRET",
+      "enabled": false,
+      "supported_pairs": ["KAS/USDT", "ZEC/USDT"]
+    },
+
+    "coinbase": {
+      "api_key": "YOUR_COINBASE_API_KEY",
+      "api_secret": "YOUR_COINBASE_API_SECRET",
+      "enabled": false,
+      "supported_pairs": ["ZEC/USD"]
+    }
+  },
+
+  "payment_providers": {
+    "wise": {
+      "api_key": "YOUR_WISE_API_KEY",
+      "profile_id": "YOUR_WISE_PROFILE_ID",
+      "enabled": true,
+      "fee_percentage": 0.5
+    },
+
+    "revolut": {
+      "api_key": "YOUR_REVOLUT_API_KEY",
+      "enabled": false,
+      "fee_percentage": 0.2
+    },
+
+    "paypal": {
+      "client_id": "YOUR_PAYPAL_CLIENT_ID",
+      "client_secret": "YOUR_PAYPAL_CLIENT_SECRET",
+      "enabled": false,
+      "fee_percentage": 2.9
+    }
+  },
+
+  "security": {
+    "enable_notifications": true,
+    "notification_email": "your-email@example.com",
+    "notification_methods": ["email", "telegram"],
+    "telegram_bot_token": "YOUR_TELEGRAM_BOT_TOKEN",
+    "telegram_chat_id": "YOUR_TELEGRAM_CHAT_ID",
+    "max_daily_conversion_usd": 10000,
+    "max_weekly_conversion_usd": 50000,
+    "require_2fa": true
+  },
+
+  "logging": {
+    "level": "INFO",
+    "log_file": "/var/log/crypto-converter.log",
+    "max_log_size_mb": 10,
+    "backup_count": 5
+  }
+}

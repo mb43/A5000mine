@@ -1,0 +1,72 @@
+{
+    "operation": "kaspa",
+    "hardware": "ASIC",
+    "miner_model": "KS5M",
+    "wallet": "kaspa:CONFIGURE_ME",
+    "pool": {
+        "primary": {
+            "name": "EMCD",
+            "url": "stratum+tcp://kas.emcd.io:3333",
+            "worker_format": "{wallet}",
+            "password": "x",
+            "fee_percent": 0,
+            "min_payout_kas": 1,
+            "note": "0% fee - highest GBP per day"
+        },
+        "backup1": {
+            "name": "EMCD Backup",
+            "url": "stratum+tcp://kas.emcd.io:7777",
+            "worker_format": "{wallet}",
+            "password": "x",
+            "fee_percent": 0,
+            "min_payout_kas": 1
+        },
+        "backup2": {
+            "name": "2Miners",
+            "url": "stratum+tcp://eu-kas.2miners.com:2020",
+            "worker_format": "{wallet}.{worker_name}",
+            "password": "x",
+            "fee_percent": 1,
+            "min_payout_kas": 50
+        }
+    },
+    "miners": [
+        {
+            "name": "Miner01",
+            "ip": "192.168.1.100",
+            "port": 80,
+            "proxy_port": 8080
+        }
+    ],
+    "network": {
+        "router": "Zyxel NR5103E",
+        "connection": "5G",
+        "pi_ip": "192.168.1.10",
+        "subnet": "192.168.1.0/24"
+    },
+    "performance": {
+        "hashrate_per_miner": 15.0,
+        "unit": "TH/s",
+        "power_per_miner": 3400,
+        "power_unit": "W"
+    },
+    "income": {
+        "daily_per_miner_gbp": 83.50,
+        "monthly_per_miner_gbp": 2507.50,
+        "yearly_per_miner_gbp": 30500,
+        "currency": "GBP",
+        "kas_per_day": 1781,
+        "kas_price_gbp": 0.0463,
+        "pool_fee_percent": 0,
+        "min_payout_kas": 1,
+        "hardware_cost_gbp": 600,
+        "payback_days": 7.2,
+        "note": "Based on KAS @ £0.0463, 29 Nov 2025, 0% pool fee (EMCD)"
+    },
+    "remote_access": {
+        "enabled": true,
+        "method": "tailscale",
+        "hostname": "kaspa-site-01",
+        "nginx_proxy": true
+    }
+}

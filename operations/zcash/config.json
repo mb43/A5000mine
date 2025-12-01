@@ -1,0 +1,46 @@
+{
+    "operation": "zcash",
+    "hardware": "ASIC",
+    "miner_model": "Z15 Pro",
+    "wallet": "t1_CONFIGURE_ME",
+    "pool": {
+        "primary": {
+            "url": "stratum+tcp://zec.2miners.com:1010",
+            "worker_format": "{wallet}.{worker_name}",
+            "password": "x"
+        },
+        "backup1": {
+            "url": "stratum+tcp://zec.f2pool.com:3357",
+            "worker_format": "{wallet}.{worker_name}",
+            "password": "x"
+        }
+    },
+    "miners": [],
+    "network": {
+        "router": "TBD",
+        "connection": "Ethernet",
+        "pi_ip": "192.168.1.10",
+        "subnet": "192.168.1.0/24"
+    },
+    "performance": {
+        "hashrate_per_miner": 420.0,
+        "unit": "KSol/s",
+        "power_per_miner": 1510,
+        "power_unit": "W"
+    },
+    "income": {
+        "daily_per_miner_gbp": 45,
+        "currency": "GBP",
+        "zec_per_day": 0.5,
+        "payout_threshold": 0.01,
+        "note": "Estimates - update based on current ZEC price and network difficulty"
+    },
+    "remote_access": {
+        "enabled": true,
+        "method": "tailscale",
+        "hostname": "zcash-site-01",
+        "nginx_proxy": true
+    },
+    "status": "planned",
+    "notes": "Placeholder for Z15 Pro ASIC miner - coming soon"
+}
