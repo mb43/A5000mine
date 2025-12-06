@@ -1,0 +1,66 @@
+{
+    "operation": "aeternity",
+    "hardware": "GPU",
+    "gpu_model": "NVIDIA A5000",
+    "wallet": "ak_CONFIGURE_ME",
+    "worker_name": "rig-01",
+    "pool": {
+        "primary": {
+            "url": "stratum+tcp://ae.2miners.com:4040",
+            "fee": 1
+        },
+        "backup": {
+            "url": "stratum+tcp://ae.f2pool.com:4040",
+            "fee": 2
+        }
+    },
+    "gpu": {
+        "device_id": 0,
+        "power_limit": 230,
+        "core_offset": 0,
+        "mem_offset": 0,
+        "vram": 24
+    },
+    "performance": {
+        "hashrate_per_gpu": 5.0,
+        "unit": "G/s",
+        "power_per_gpu": 230,
+        "power_unit": "W",
+        "algorithm": "Cuckoo Cycle C29AE"
+    },
+    "income": {
+        "daily_per_gpu_gbp": 0.068,
+        "monthly_per_gpu_gbp": 2.04,
+        "yearly_per_gpu_gbp": 24.82,
+        "currency": "GBP",
+        "ae_per_day": 17.2,
+        "ae_price_usd": 0.004991,
+        "ae_price_gbp": 0.00393,
+        "network_hashrate_gps": 5800,
+        "note": "Based on 2Miners calculator Dec 2025 - AE mining is NOT profitable",
+        "alternatives": {
+            "ethereum_classic": {
+                "daily_gbp": 0.47,
+                "hashrate": "99 MH/s",
+                "algorithm": "Ethash",
+                "note": "Most profitable option - consider switching"
+            },
+            "ravencoin": {
+                "daily_gbp": 0.25,
+                "hashrate": "45 MH/s",
+                "algorithm": "KawPoW"
+            },
+            "ergo": {
+                "daily_gbp": 0.39,
+                "hashrate": "240 MH/s",
+                "algorithm": "Autolykos"
+            }
+        },
+        "electricity": "FREE",
+        "source": "WhatToMine, Kryptex - Dec 1, 2025"
+    },
+    "dashboard": {
+        "enabled": true,
+        "port": 8080
+    }
+}

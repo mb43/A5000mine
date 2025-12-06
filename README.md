@@ -2,7 +2,7 @@
 
 A modern web application for calculating real-time Kaspa mining income projections for IceRiver KS5M miners.
 
-## Features
+A complete deployment platform for IceRiver KS5M ASIC miners with remote management, automated monitoring, and crypto conversion automation.
 
 - **Real-time Data**: Fetches live KAS price from CoinGecko and network stats from 2Miners API
 - **Income Projections**: Calculates daily, monthly, and yearly income for different mining pools
@@ -11,7 +11,9 @@ A modern web application for calculating real-time Kaspa mining income projectio
 - **ROI Calculator**: Calculate hardware payback period
 - **Auto-refresh**: Data updates every 5 minutes automatically
 
-## Quick Start
+```
+1 KS5M ASIC:  £40.94/day  = £14,941/year  (PROFITABLE!)
+1 GPU Mining: £0.07/day   = £25/year      (DEAD in 2025)
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -75,7 +77,11 @@ The application is pre-configured for IceRiver KS5M miners with:
 
 To modify these values, edit the constants at the top of `app.py`.
 
-## Troubleshooting
+| Pool | URL | Fee | Min Payout | Recommended |
+|------|-----|-----|------------|-------------|
+| **EMCD** | stratum+tcp://kas.emcd.io:3333 | **0%** | 1 KAS | ⭐ **YES** |
+| EMCD Backup | stratum+tcp://kas.emcd.io:7777 | 0% | 1 KAS | Backup |
+| 2Miners | stratum+tcp://eu-kas.2miners.com:2020 | 1% | 50 KAS | Backup |
 
 ### Common Issues
 
@@ -93,7 +99,7 @@ To modify these values, edit the constants at the top of `app.py`.
 ### Logs
 Check the terminal output for detailed error messages and API status.
 
-## Development
+---
 
 ### Project Structure
 ```
@@ -111,6 +117,6 @@ Check the terminal output for detailed error messages and API status.
 - Update the web interface in `templates/index.html`
 - Add new API endpoints as needed
 
-## License
+GPU mining is **NOT profitable** in Dec 2025. Included for reference only.
 
 This project is provided as-is for educational and personal use.

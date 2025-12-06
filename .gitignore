@@ -30,3 +30,15 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+
+# Sensitive configuration files (API keys, secrets)
+automation/config.json
+automation/state.json
+
+# Wallet private keys (never commit!)
+**/wallets/*.key
+**/wallets/*.dat
+**/*private*.json
+
+# Local operation configs with real wallet addresses
+operations/*/config.json.local

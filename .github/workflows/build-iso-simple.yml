@@ -1,0 +1,30 @@
+name: Build ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo df -h
+
+      - name: Build ISO
+        run: sudo ./build-iso.sh
+
+      - name: Verify ISO was created
+        run: |
+          ls -lh build/a5000mine.iso
+          echo "ISO built successfully!"
+          echo "ISO size: $(du -h build/a5000mine.iso | cut -f1)"
+          echo ""
+          echo "Note: ISO is too large to upload as artifact (GitHub limit)"
+          echo "Build the ISO locally using: sudo ./build-iso.sh"

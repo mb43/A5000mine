@@ -20,9 +20,14 @@ fi
 # Configuration
 WORK_DIR="$(pwd)/build"
 ISO_NAME="a5000mine.iso"
-UBUNTU_VERSION="22.04"
-UBUNTU_ISO="ubuntu-${UBUNTU_VERSION}-live-server-amd64.iso"
-UBUNTU_URL="https://releases.ubuntu.com/${UBUNTU_VERSION}/${UBUNTU_ISO}"
+UBUNTU_VERSION="22.04.5"
+UBUNTU_ISO="ubuntu-22.04.5-live-server-amd64.iso"
+# Try multiple mirrors for reliability
+UBUNTU_URLS=(
+    "https://releases.ubuntu.com/jammy/${UBUNTU_ISO}"
+    "https://releases.ubuntu.com/22.04/${UBUNTU_ISO}"
+    "http://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/${UBUNTU_ISO}"
+)
 
 # Custom configuration support
 CUSTOM_CONFIG="${CUSTOM_CONFIG:-}"
@@ -43,7 +48,22 @@ cd "$WORK_DIR"
 # Download Ubuntu base ISO if not present
 if [ ! -f "$UBUNTU_ISO" ]; then
     log "Downloading Ubuntu ${UBUNTU_VERSION} base ISO"
-    wget -c "$UBUNTU_URL" || error "Failed to download Ubuntu ISO"
+    DOWNLOAD_SUCCESS=false
+    for URL in "${UBUNTU_URLS[@]}"; do
+        log "Trying mirror: $URL"
+        if wget -c --timeout=60 "$URL" -O "$UBUNTU_ISO"; then
+            DOWNLOAD_SUCCESS=true
+            log "Successfully downloaded from $URL"
+            break
+        else
+            log "Failed to download from $URL, trying next mirror..."
+            rm -f "$UBUNTU_ISO"
+        fi
+    done
+
+    if [ "$DOWNLOAD_SUCCESS" = false ]; then
+        error "Failed to download Ubuntu ISO from all mirrors"
+    fi
 else
     log "Ubuntu ISO already exists, skipping download"
 fi
@@ -66,13 +86,42 @@ apt-get install -y \
 log "Extracting base ISO"
 mkdir -p iso_extract iso_new
 mount -o loop "$UBUNTU_ISO" iso_extract || error "Failed to mount ISO"
+
+# Debug: Show ISO structure
+log "ISO contents:"
+ls -la iso_extract/ || true
+ls -la iso_extract/casper/ || true
+
 rsync -a iso_extract/ iso_new/ || error "Failed to copy ISO contents"
 umount iso_extract
 
+# Debug: Verify copy
+log "Copied ISO contents:"
+ls -la iso_new/casper/ || true
+
 # Extract squashfs
 log "Extracting squashfs filesystem"
+
+# Clean up any existing extraction directory
+rm -rf squashfs_root
 mkdir -p squashfs_root
-unsquashfs -d squashfs_root iso_new/casper/filesystem.squashfs || error "Failed to extract squashfs"
+
+# Find the squashfs file (location varies by Ubuntu version)
+SQUASHFS_FILE=""
+if [ -f "iso_new/casper/filesystem.squashfs" ]; then
+    SQUASHFS_FILE="iso_new/casper/filesystem.squashfs"
+elif [ -f "iso_new/casper/ubuntu-server-minimal.squashfs" ]; then
+    SQUASHFS_FILE="iso_new/casper/ubuntu-server-minimal.squashfs"
+elif [ -f "iso_new/casper/ubuntu-server.squashfs" ]; then
+    SQUASHFS_FILE="iso_new/casper/ubuntu-server.squashfs"
+else
+    log "ERROR: Could not find squashfs filesystem in:"
+    ls -la iso_new/casper/
+    error "Failed to locate squashfs file"
+fi
+
+log "Using squashfs file: $SQUASHFS_FILE"
+unsquashfs -f -d squashfs_root "$SQUASHFS_FILE" || error "Failed to extract squashfs"
 
 # Mount required filesystems for chroot
 log "Setting up chroot environment"
