@@ -1,39 +1,42 @@
 # KaspaMine - Profitable ASIC Mining Platform
 
-**KS5M Kaspa Mining: £83.50/day per miner | 7.2 day ROI | £30,500/year**
+**KS5M Kaspa Mining: £40.94/day per miner | 14.7 day ROI | £14,941/year**
+*(Updated Dec 6, 2025 - Run `python3 calculator.py` for real-time figures)*
 
 A complete deployment platform for IceRiver KS5M ASIC miners with remote management, automated monitoring, and crypto conversion automation.
 
 ## 🚀 Why Kaspa Mining?
 
 ```
-1 KS5M ASIC:  £83.50/day  = £30,500/year  (PROFITABLE!)
+1 KS5M ASIC:  £40.94/day  = £14,941/year  (PROFITABLE!)
 1 GPU Mining: £0.07/day   = £25/year      (DEAD in 2025)
 
-KS5M is 1,228x more profitable than GPU mining.
+KS5M is 585x more profitable than GPU mining.
 ```
 
 ## ✅ Features
 
 - **12-Minute Deployment**: Complete KS5M setup from unboxing to hashing
-- **Zero Pool Fees**: EMCD pool with 0% fees (saves £912/year per miner!)
-- **7.2 Day ROI**: £600 hardware paid back in one week
+- **Zero Pool Fees**: EMCD pool with 0% fees (saves £149/year per miner!)
+- **14.7 Day ROI**: £600 hardware paid back in 2 weeks
+- **Real-Time Calculator**: Live income projections using CoinGecko + 2Miners APIs
 - **Remote Access**: Secure monitoring via Tailscale from anywhere
 - **Auto-Recovery**: Watchdog scripts auto-reboot dead miners
 - **Unified Dashboard**: Real-time monitoring with income projections
 - **Automated Conversion**: Optional daily crypto→stablecoin, weekly→GBP
 
-## 📊 Real-World Performance (Verified Dec 2025)
+## 📊 Real-World Performance (Live API Data - Dec 6, 2025)
 
 | Metric | Per Miner | 5 Miners | 10 Miners |
 |--------|-----------|----------|-----------|
-| **Daily Income** | £83.50 | £417.50 | £835 |
-| **Monthly Income** | £2,507.50 | £12,537.50 | £25,075 |
-| **Yearly Income** | £30,500 | £152,500 | £305,000 |
+| **Daily Income** | £40.94 | £204.70 | £409.40 |
+| **Monthly Income** | £1,228.09 | £6,140.45 | £12,280.90 |
+| **Yearly Income** | £14,941.73 | £74,708.65 | £149,417.30 |
 | **Hardware Cost** | £600 | £3,000 | £6,000 |
-| **ROI** | 7.2 days | 7.2 days | 7.2 days |
+| **ROI** | 14.7 days | 14.7 days | 14.7 days |
 
-**Based on:** KAS @ £0.0463, 1,781 KAS/day per miner, EMCD pool (0% fee), verified Nov 29, 2025
+**Based on:** KAS @ £0.0395, 1,035 KAS/day, Network: 626 PH/s, EMCD pool (0% fee)
+**Run `python3 calculator.py` for current real-time figures**
 
 ## ⚡ Also Supports (Legacy)
 
@@ -47,7 +50,7 @@ KS5M is 1,228x more profitable than GPU mining.
 | **1** | Create Kaspium Wallet | 5 min | [Wallet Setup](operations/kaspa/guides/wallet-setup.md) |
 | **2** | Connect & Configure KS5M | 7 min | [Quick Deploy](operations/kaspa/guides/quick-deploy.md) |
 | **3** | Enable Remote Access | 5 min | [Remote Access](operations/kaspa/guides/remote-access.md) |
-| **4** | Start Earning! | 0 min | £83.50/day automatically! |
+| **4** | Start Earning! | 0 min | £40.94/day automatically! |
 
 **Total setup time: 17 minutes from box to hashing** 🎯
 

@@ -69,47 +69,47 @@ def fetch_kas_price() -> Optional[float]:
 
 def fetch_network_stats() -> Optional[Dict]:
     """
-    Fetch Kaspa network statistics
+    Fetch Kaspa network statistics from 2Miners API (REAL DATA ONLY)
     Returns: Dict with network_hashrate_ths, block_reward, block_time_seconds
     """
-    # Try 2Miners API first (most reliable)
     try:
         url = "https://kas.2miners.com/api/stats"
         response = requests.get(url, timeout=10)
+        response.raise_for_status()
 
-        if response.status_code == 200:
-            data = response.json()
+        data = response.json()
 
-            # 2Miners provides network stats
-            network_hashrate_hs = data.get("stats", {}).get("networkHashrate", 0)
+        # Extract real network hashrate from nodes[0].networkhashps
+        nodes = data.get("nodes", [])
+        if not nodes:
+            print(f"{RED}✗{RESET} No nodes data in 2Miners API response")
+            return None
 
-            if network_hashrate_hs > 0:
-                stats = {
-                    "network_hashrate_ths": network_hashrate_hs / 1e12,  # Convert H/s to TH/s
-                    "block_reward": 500,  # KAS per block (approx, decreases slowly)
-                    "block_time_seconds": 1,  # Kaspa block time
-                    "difficulty": data.get("stats", {}).get("networkDifficulty", 0),
-                    "source": "2Miners API"
-                }
+        network_hashrate_hs = int(nodes[0].get("networkhashps", 0))
 
-                print(f"{GREEN}✓{RESET} Fetched network stats from 2Miners API")
-                return stats
+        if network_hashrate_hs <= 0:
+            print(f"{RED}✗{RESET} Invalid network hashrate from API: {network_hashrate_hs}")
+            return None
+
+        # Get difficulty if available
+        difficulty = data.get("nodes", [{}])[0].get("difficulty", 0)
+
+        stats = {
+            "network_hashrate_ths": network_hashrate_hs / 1e12,  # Convert H/s to TH/s
+            "block_reward": 500,  # KAS per block (decreases slowly over time)
+            "block_time_seconds": 1,  # Kaspa block time
+            "difficulty": difficulty,
+            "source": "2Miners API (Real-time)"
+        }
+
+        print(f"{GREEN}✓{RESET} Fetched network stats from 2Miners API")
+        print(f"{GREEN}✓{RESET} Network hashrate: {stats['network_hashrate_ths']:,.0f} TH/s ({stats['network_hashrate_ths']/1000:.0f} PH/s)")
+        return stats
 
     except Exception as e:
-        print(f"{YELLOW}⚠{RESET} 2Miners API failed: {e}")
-
-    # Fallback: Use hardcoded estimates (update manually from explorer)
-    print(f"{YELLOW}⚠{RESET} Using fallback network estimates")
-    print(f"{YELLOW}⚠{RESET} Update these from https://explorer.kaspa.org or https://kas.2miners.com")
-
-    return {
-        "network_hashrate_ths": 150_000,  # 150 PH/s = 150,000 TH/s (manual estimate)
-        "block_reward": 500,               # KAS per block (decreases over time)
-        "block_time_seconds": 1,          # ~1 second per block
-        "difficulty": 0,
-        "source": "Fallback estimates",
-        "note": "PLEASE UPDATE: Visit https://kas.2miners.com to get current network hashrate"
-    }
+        print(f"{RED}✗{RESET} 2Miners API failed: {e}")
+        print(f"{RED}✗{RESET} Cannot proceed without real network data")
+        return None
 
 
 def fetch_2miners_stats() -> Optional[Dict]:
@@ -231,13 +231,8 @@ def run_calculator(verbose: bool = True) -> Dict:
 
     if not kas_price or not network_stats:
         print(f"\n{RED}✗ Failed to fetch required data{RESET}")
+        print(f"{RED}✗ Calculator requires REAL API data - no fallback estimates allowed{RESET}")
         return None
-
-    # Validate network hashrate
-    if network_stats["network_hashrate_ths"] <= 0:
-        print(f"\n{RED}✗ Invalid network hashrate: {network_stats['network_hashrate_ths']}{RESET}")
-        print(f"{YELLOW}Using fallback: 150,000 TH/s{RESET}")
-        network_stats["network_hashrate_ths"] = 150_000
 
     # Calculate daily KAS production
     daily_kas = calculate_daily_kas_production(
