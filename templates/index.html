@@ -776,11 +776,11 @@
                 document.getElementById('zec-miner-hashrate').textContent = `${zcash.miner.hashrate_ksol} KSol/s`;
                 document.getElementById('zec-miner-power').textContent = `${zcash.miner.power_w} W`;
                 document.getElementById('zec-miner-cost').textContent = `£${zcash.miner.cost_gbp}`;
-                document.getElementById('zec-roi-days').textContent = `${zcash.income['0_fee'].roi_days} days`;
+                document.getElementById('zec-roi-days').textContent = `${zcash.income['0_fee_pool'].roi_days} days`;
 
                 // Income comparison
-                const fee0 = zcash.income['0_fee'];
-                const fee1 = zcash.income['1_fee'];
+                const fee0 = zcash.income['0_fee_pool'];
+                const fee1 = zcash.income['2miners_pool'];
 
                 document.getElementById('zec-0fee-daily').textContent = `£${fee0.daily_gbp.toFixed(2)}`;
                 document.getElementById('zec-0fee-zec').textContent = `${fee0.daily_zec.toFixed(4)} ZEC`;
