@@ -625,15 +625,17 @@
             // Continue with rest of display updates if kaspa data exists
             if (!data.kaspa) return;
 
+            const kaspa = data.kaspa;
+
             // Miner specs
-            document.getElementById('miner-hashrate').textContent = `${data.miner.hashrate_ths} TH/s`;
-            document.getElementById('miner-power').textContent = `${data.miner.power_w} W`;
-            document.getElementById('miner-cost').textContent = `£${data.miner.cost_gbp}`;
-            document.getElementById('roi-days').textContent = `${data.income.emcd_pool.roi_days} days`;
+            document.getElementById('miner-hashrate').textContent = `${kaspa.miner.hashrate_ths} TH/s`;
+            document.getElementById('miner-power').textContent = `${kaspa.miner.power_w} W`;
+            document.getElementById('miner-cost').textContent = `£${kaspa.miner.cost_gbp}`;
+            document.getElementById('roi-days').textContent = `${kaspa.income.emcd_pool.roi_days} days`;
 
             // Income comparison
-            const emcd = data.income.emcd_pool;
-            const miners = data.income['2miners_pool'];
+            const emcd = kaspa.income.emcd_pool;
+            const miners = kaspa.income['2miners_pool'];
 
             document.getElementById('emcd-daily').textContent = `£${emcd.daily_gbp.toFixed(2)}`;
             document.getElementById('emcd-kas').textContent = `${emcd.daily_kas.toFixed(2)} KAS`;
@@ -648,7 +650,7 @@
             tbody.innerHTML = '';
 
             [1, 5, 10, 20].forEach(count => {
-                const scale = data.scaling[`${count}_miners`];
+                const scale = kaspa.scaling[`${count}_miners`];
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${count}</td>
