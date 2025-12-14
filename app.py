@@ -57,6 +57,16 @@ CORS(app)
 # Global variables to store latest results and data source status
 latest_results = None
 last_update = None
+
+# Cache for API responses with timestamps
+api_cache = {
+    "kaspa_price": {"value": None, "timestamp": None, "ttl": 60},  # Cache for 60 seconds
+    "zec_price": {"value": None, "timestamp": None, "ttl": 60},  # Cache for 60 seconds
+    "kaspa_network": {"value": None, "timestamp": None, "ttl": 5},  # Cache for 5 seconds
+    "zec_network": {"value": None, "timestamp": None, "ttl": 5},  # Cache for 5 seconds
+    "kaspa_block_reward": {"value": None, "timestamp": None, "ttl": 30},  # Cache for 30 seconds
+}
+
 data_source_status = {
     "kaspa": {
         "price": {"status": "unknown", "timestamp": None, "source": "CoinGecko API"},
@@ -70,16 +80,43 @@ data_source_status = {
     }
 }
 
+def is_cache_valid(cache_key: str) -> bool:
+    """Check if cached data is still valid"""
+    cache = api_cache.get(cache_key)
+    if not cache or cache["value"] is None or cache["timestamp"] is None:
+        return False
+
+    age = (datetime.now() - cache["timestamp"]).total_seconds()
+    return age < cache["ttl"]
+
+def get_cached_value(cache_key: str):
+    """Get value from cache"""
+    cache = api_cache.get(cache_key)
+    return cache["value"] if cache else None
+
+def set_cache(cache_key: str, value):
+    """Store value in cache with current timestamp"""
+    if cache_key in api_cache:
+        api_cache[cache_key]["value"] = value
+        api_cache[cache_key]["timestamp"] = datetime.now()
+
 # ============================================================================
 # Data Fetching Functions
 # ============================================================================
 
 def fetch_kas_price() -> Optional[float]:
     """
-    Fetch current KAS price in GBP from CoinGecko
+    Fetch current KAS price in GBP from CoinGecko (with caching)
     Returns: Price in GBP or None if failed
     """
     global data_source_status
+
+    # Check cache first
+    if is_cache_valid("kaspa_price"):
+        cached_price = get_cached_value("kaspa_price")
+        data_source_status["kaspa"]["price"]["status"] = "cached"
+        data_source_status["kaspa"]["price"]["timestamp"] = datetime.now().isoformat()
+        return cached_price
 
     try:
         url = f"{COINGECKO_API}/simple/price"
@@ -93,12 +130,21 @@ def fetch_kas_price() -> Optional[float]:
 
         price = data.get("kaspa", {}).get("gbp")
         if price:
+            price_float = float(price)
+            set_cache("kaspa_price", price_float)
             data_source_status["kaspa"]["price"]["status"] = "live"
             data_source_status["kaspa"]["price"]["timestamp"] = datetime.now().isoformat()
-            return float(price)
+            return price_float
 
     except Exception as e:
         print(f"Error fetching KAS price from CoinGecko: {e}")
+        # Try to use cached value even if expired
+        cached_price = get_cached_value("kaspa_price")
+        if cached_price:
+            data_source_status["kaspa"]["price"]["status"] = "cached"
+            data_source_status["kaspa"]["price"]["timestamp"] = datetime.now().isoformat()
+            return cached_price
+
         data_source_status["kaspa"]["price"]["status"] = "failed"
         data_source_status["kaspa"]["price"]["timestamp"] = datetime.now().isoformat()
 
@@ -199,10 +245,17 @@ def fetch_2miners_stats() -> Optional[Dict]:
 
 def fetch_zec_price() -> Optional[float]:
     """
-    Fetch current ZEC price in GBP from CoinGecko
+    Fetch current ZEC price in GBP from CoinGecko (with caching)
     Returns: Price in GBP or None if failed
     """
     global data_source_status
+
+    # Check cache first
+    if is_cache_valid("zec_price"):
+        cached_price = get_cached_value("zec_price")
+        data_source_status["zcash"]["price"]["status"] = "cached"
+        data_source_status["zcash"]["price"]["timestamp"] = datetime.now().isoformat()
+        return cached_price
 
     try:
         url = f"{COINGECKO_API}/simple/price"
@@ -216,12 +269,21 @@ def fetch_zec_price() -> Optional[float]:
 
         price = data.get("zcash", {}).get("gbp")
         if price:
+            price_float = float(price)
+            set_cache("zec_price", price_float)
             data_source_status["zcash"]["price"]["status"] = "live"
             data_source_status["zcash"]["price"]["timestamp"] = datetime.now().isoformat()
-            return float(price)
+            return price_float
 
     except Exception as e:
         print(f"Error fetching ZEC price from CoinGecko: {e}")
+        # Try to use cached value even if expired
+        cached_price = get_cached_value("zec_price")
+        if cached_price:
+            data_source_status["zcash"]["price"]["status"] = "cached"
+            data_source_status["zcash"]["price"]["timestamp"] = datetime.now().isoformat()
+            return cached_price
+
         data_source_status["zcash"]["price"]["status"] = "failed"
         data_source_status["zcash"]["price"]["timestamp"] = datetime.now().isoformat()
 
