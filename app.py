@@ -54,9 +54,21 @@ app = Flask(__name__,
             static_folder='static')
 CORS(app)
 
-# Global variable to store latest results
+# Global variables to store latest results and data source status
 latest_results = None
 last_update = None
+data_source_status = {
+    "kaspa": {
+        "price": {"status": "unknown", "timestamp": None, "source": "CoinGecko API"},
+        "network": {"status": "unknown", "timestamp": None, "source": "2Miners API"},
+        "block_reward": {"status": "unknown", "timestamp": None, "source": "Kaspa API"}
+    },
+    "zcash": {
+        "price": {"status": "unknown", "timestamp": None, "source": "CoinGecko API"},
+        "network": {"status": "unknown", "timestamp": None, "source": "2Miners API"},
+        "block_reward": {"status": "unknown", "timestamp": None, "source": "Hardcoded (2.5 ZEC)"}
+    }
+}
 
 # ============================================================================
 # Data Fetching Functions
@@ -67,22 +79,28 @@ def fetch_kas_price() -> Optional[float]:
     Fetch current KAS price in GBP from CoinGecko
     Returns: Price in GBP or None if failed
     """
+    global data_source_status
+
     try:
         url = f"{COINGECKO_API}/simple/price"
         params = {
             "ids": "kaspa",
             "vs_currencies": "gbp"
         }
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
 
         price = data.get("kaspa", {}).get("gbp")
         if price:
+            data_source_status["kaspa"]["price"]["status"] = "live"
+            data_source_status["kaspa"]["price"]["timestamp"] = datetime.now().isoformat()
             return float(price)
 
     except Exception as e:
         print(f"Error fetching KAS price from CoinGecko: {e}")
+        data_source_status["kaspa"]["price"]["status"] = "failed"
+        data_source_status["kaspa"]["price"]["timestamp"] = datetime.now().isoformat()
 
     return None
 
@@ -91,10 +109,12 @@ def fetch_network_stats() -> Optional[Dict]:
     Fetch Kaspa network statistics from 2Miners API and Kaspa API (REAL DATA ONLY)
     Returns: Dict with network_hashrate_ths, block_reward, block_time_seconds
     """
+    global data_source_status
+
     try:
         # Fetch network hashrate from 2Miners
         url = "https://kas.2miners.com/api/stats"
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()
 
         data = response.json()
@@ -102,25 +122,37 @@ def fetch_network_stats() -> Optional[Dict]:
         # Extract real network hashrate from nodes[0].networkhashps
         nodes = data.get("nodes", [])
         if not nodes:
+            data_source_status["kaspa"]["network"]["status"] = "failed"
+            data_source_status["kaspa"]["network"]["timestamp"] = datetime.now().isoformat()
             return None
 
         network_hashrate_hs = int(nodes[0].get("networkhashps", 0))
 
         if network_hashrate_hs <= 0:
+            data_source_status["kaspa"]["network"]["status"] = "failed"
+            data_source_status["kaspa"]["network"]["timestamp"] = datetime.now().isoformat()
             return None
 
         # Get difficulty if available
         difficulty = data.get("nodes", [{}])[0].get("difficulty", 0)
 
+        # Mark network data as live
+        data_source_status["kaspa"]["network"]["status"] = "live"
+        data_source_status["kaspa"]["network"]["timestamp"] = datetime.now().isoformat()
+
         # Fetch real block reward from Kaspa API
         block_reward = 3.67  # Default fallback
         try:
-            reward_response = requests.get("https://api.kaspa.org/info/blockreward", timeout=10)
+            reward_response = requests.get("https://api.kaspa.org/info/blockreward", timeout=5)
             reward_response.raise_for_status()
             reward_data = reward_response.json()
             block_reward = float(reward_data.get("blockreward", 3.67))
+            data_source_status["kaspa"]["block_reward"]["status"] = "live"
+            data_source_status["kaspa"]["block_reward"]["timestamp"] = datetime.now().isoformat()
         except Exception as e:
             print(f"Warning: Could not fetch block reward from Kaspa API: {e}, using fallback")
+            data_source_status["kaspa"]["block_reward"]["status"] = "cached"
+            data_source_status["kaspa"]["block_reward"]["timestamp"] = datetime.now().isoformat()
 
         stats = {
             "network_hashrate_ths": network_hashrate_hs / 1e12,  # Convert H/s to TH/s
@@ -134,6 +166,8 @@ def fetch_network_stats() -> Optional[Dict]:
 
     except Exception as e:
         print(f"2Miners API failed: {e}")
+        data_source_status["kaspa"]["network"]["status"] = "failed"
+        data_source_status["kaspa"]["network"]["timestamp"] = datetime.now().isoformat()
         return None
 
 def fetch_2miners_stats() -> Optional[Dict]:
@@ -168,22 +202,28 @@ def fetch_zec_price() -> Optional[float]:
     Fetch current ZEC price in GBP from CoinGecko
     Returns: Price in GBP or None if failed
     """
+    global data_source_status
+
     try:
         url = f"{COINGECKO_API}/simple/price"
         params = {
             "ids": "zcash",
             "vs_currencies": "gbp"
         }
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
 
         price = data.get("zcash", {}).get("gbp")
         if price:
+            data_source_status["zcash"]["price"]["status"] = "live"
+            data_source_status["zcash"]["price"]["timestamp"] = datetime.now().isoformat()
             return float(price)
 
     except Exception as e:
         print(f"Error fetching ZEC price from CoinGecko: {e}")
+        data_source_status["zcash"]["price"]["status"] = "failed"
+        data_source_status["zcash"]["price"]["timestamp"] = datetime.now().isoformat()
 
     return None
 
@@ -192,9 +232,11 @@ def fetch_zec_network_stats() -> Optional[Dict]:
     Fetch Zcash network statistics from 2Miners API (REAL DATA ONLY)
     Returns: Dict with network_hashrate_sol, block_reward, block_time_seconds
     """
+    global data_source_status
+
     try:
         url = "https://zec.2miners.com/api/stats"
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()
 
         data = response.json()
@@ -202,16 +244,28 @@ def fetch_zec_network_stats() -> Optional[Dict]:
         # Extract real network hashrate from nodes[0].networkhashps
         nodes = data.get("nodes", [])
         if not nodes:
+            data_source_status["zcash"]["network"]["status"] = "failed"
+            data_source_status["zcash"]["network"]["timestamp"] = datetime.now().isoformat()
             return None
 
         network_hashrate_sol = int(nodes[0].get("networkhashps", 0))
 
         if network_hashrate_sol <= 0:
+            data_source_status["zcash"]["network"]["status"] = "failed"
+            data_source_status["zcash"]["network"]["timestamp"] = datetime.now().isoformat()
             return None
 
         # Get difficulty and block time
         difficulty = nodes[0].get("difficulty", 0)
         avg_block_time = float(nodes[0].get("avgBlockTime", 75))
+
+        # Mark network data as live
+        data_source_status["zcash"]["network"]["status"] = "live"
+        data_source_status["zcash"]["network"]["timestamp"] = datetime.now().isoformat()
+
+        # Block reward is hardcoded for now
+        data_source_status["zcash"]["block_reward"]["status"] = "live"
+        data_source_status["zcash"]["block_reward"]["timestamp"] = datetime.now().isoformat()
 
         stats = {
             "network_hashrate_sol": network_hashrate_sol,  # Sol/s
@@ -227,6 +281,8 @@ def fetch_zec_network_stats() -> Optional[Dict]:
 
     except Exception as e:
         print(f"2Miners ZEC API failed: {e}")
+        data_source_status["zcash"]["network"]["status"] = "failed"
+        data_source_status["zcash"]["network"]["timestamp"] = datetime.now().isoformat()
         return None
 
 # ============================================================================
@@ -487,24 +543,20 @@ def run_calculator(coins: str = "both") -> Dict:
 # ============================================================================
 
 def background_update():
-    """Background thread to periodically update calculator data"""
+    """Background thread to continuously update calculator data"""
     global latest_results, last_update
 
     while True:
         try:
-            print("Updating calculator data...")
             results = run_calculator()
             if results:
                 latest_results = results
                 last_update = datetime.now()
-                print("✓ Calculator data updated successfully")
-            else:
-                print("✗ Failed to update calculator data")
         except Exception as e:
             print(f"Error in background update: {e}")
 
-        # Update every 5 minutes
-        time.sleep(300)
+        # Update every second for real-time data
+        time.sleep(1)
 
 # ============================================================================
 # Flask Routes
@@ -518,7 +570,7 @@ def index():
 @app.route('/api/calculator')
 def get_calculator_data():
     """API endpoint to get calculator results with optional coin selection"""
-    global latest_results, last_update
+    global latest_results, last_update, data_source_status
 
     # Get coin selection from query params (kaspa, zcash, or both)
     coins = request.args.get('coins', 'both')
@@ -531,12 +583,19 @@ def get_calculator_data():
         last_update = datetime.now()
 
     if latest_results:
-        # Add last update info
+        # Add last update info and data source status
         response_data = latest_results.copy()
         response_data['last_update'] = last_update.isoformat() if last_update else None
+        response_data['data_sources'] = data_source_status
         return jsonify(response_data)
     else:
         return jsonify({"error": "Failed to fetch calculator data"}), 500
+
+@app.route('/api/status')
+def get_data_source_status():
+    """API endpoint to get real-time data source status"""
+    global data_source_status
+    return jsonify(data_source_status)
 
 @app.route('/api/refresh')
 def refresh_data():

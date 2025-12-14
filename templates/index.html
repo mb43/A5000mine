@@ -274,6 +274,85 @@
             display: block;
         }
 
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 8px;
+            cursor: help;
+            position: relative;
+        }
+
+        .status-live {
+            background: #38a169;
+            box-shadow: 0 0 8px #38a169;
+            animation: pulse-green 2s infinite;
+        }
+
+        .status-cached {
+            background: #ed8936;
+            box-shadow: 0 0 8px #ed8936;
+        }
+
+        .status-failed {
+            background: #e53e3e;
+            box-shadow: 0 0 8px #e53e3e;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px #e53e3e; }
+            50% { opacity: 0.7; box-shadow: 0 0 4px #e53e3e; }
+        }
+
+        .status-indicator[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .status-indicator[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+        }
+
+        .stat.live {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-left-color: #38a169;
+        }
+
+        .stat.cached {
+            background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+            border-left-color: #ed8936;
+        }
+
+        .stat.failed {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-left-color: #e53e3e;
+        }
+
         footer {
             text-align: center;
             padding: 30px;
@@ -454,7 +533,7 @@
         </div>
 
         <footer>
-            <p><i class="fas fa-database"></i> Data Sources: CoinGecko API, 2Miners Pool API | <i class="fas fa-clock"></i> Updates every 5 minutes</p>
+            <p><i class="fas fa-database"></i> Data Sources: CoinGecko API, 2Miners Pool API, Kaspa API | <i class="fas fa-clock"></i> Real-time updates (every second)</p>
         </footer>
     </div>
 
@@ -533,10 +612,18 @@
         }
 
         function updateDisplay(data) {
-            // Market data
-            document.getElementById('kas-price').textContent = `£${data.market.kas_price_gbp.toFixed(4)}`;
-            document.getElementById('network-hashrate').textContent = `${data.network.network_hashrate_ths.toLocaleString()} TH/s`;
-            document.getElementById('block-reward').textContent = `${data.network.block_reward} KAS`;
+            // Update with status indicators
+            updateDisplayWithStatus(data);
+
+            // Fallback for old data structure (if data_sources not available)
+            if (!data.data_sources && data.market) {
+                document.getElementById('kas-price').textContent = `£${data.market.kas_price_gbp.toFixed(4)}`;
+                document.getElementById('network-hashrate').textContent = `${data.network.network_hashrate_ths.toLocaleString()} TH/s`;
+                document.getElementById('block-reward').textContent = `${data.network.block_reward} KAS`;
+            }
+
+            // Continue with rest of display updates if kaspa data exists
+            if (!data.kaspa) return;
 
             // Miner specs
             document.getElementById('miner-hashrate').textContent = `${data.miner.hashrate_ths} TH/s`;
@@ -607,8 +694,49 @@
             document.getElementById('content').style.display = 'block';
         }
 
-        // Auto-refresh every 5 minutes
-        setInterval(refreshData, 300000);
+        // Helper function to create status indicator
+        function createStatusIndicator(status, source, timestamp) {
+            const statusClass = status === 'live' ? 'status-live' : (status === 'cached' ? 'status-cached' : 'status-failed');
+            const statusText = status === 'live' ? 'LIVE' : (status === 'cached' ? 'CACHED' : 'OFFLINE');
+            const time = timestamp ? new Date(timestamp).toLocaleTimeString() : 'N/A';
+            const tooltip = `${statusText} - ${source} (${time})`;
+            return `<span class="status-indicator ${statusClass}" data-tooltip="${tooltip}"></span>`;
+        }
+
+        // Update display with status indicators
+        function updateDisplayWithStatus(data) {
+            if (!data.kaspa && !data.zcash) return;
+
+            // Update Kaspa data if available
+            if (data.kaspa && data.data_sources) {
+                const kaspa = data.kaspa;
+                const sources = data.data_sources.kaspa;
+
+                // Update price with status
+                const priceEl = document.getElementById('kas-price');
+                if (priceEl) {
+                    priceEl.innerHTML = `£${kaspa.market.kas_price_gbp.toFixed(4)} ${createStatusIndicator(sources.price.status, sources.price.source, sources.price.timestamp)}`;
+                    priceEl.parentElement.className = `stat ${sources.price.status}`;
+                }
+
+                // Update network hashrate with status
+                const hashEl = document.getElementById('network-hashrate');
+                if (hashEl) {
+                    hashEl.innerHTML = `${kaspa.network.network_hashrate_ths.toLocaleString()} TH/s ${createStatusIndicator(sources.network.status, sources.network.source, sources.network.timestamp)}`;
+                    hashEl.parentElement.className = `stat ${sources.network.status}`;
+                }
+
+                // Update block reward with status
+                const rewardEl = document.getElementById('block-reward');
+                if (rewardEl) {
+                    rewardEl.innerHTML = `${kaspa.network.block_reward} KAS ${createStatusIndicator(sources.block_reward.status, sources.block_reward.source, sources.block_reward.timestamp)}`;
+                    rewardEl.parentElement.className = `stat ${sources.block_reward.status}`;
+                }
+            }
+        }
+
+        // Auto-refresh every second for real-time updates
+        setInterval(loadData, 1000);
     </script>
 </body>
 </html>
