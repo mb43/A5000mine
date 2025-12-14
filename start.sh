@@ -35,9 +35,9 @@ else
     echo "⚠️  requirements.txt not found. Please make sure all dependencies are installed."
 fi
 
-# Check if port 5000 is available
-if lsof -Pi :5000 -sTCP:LISTEN -t >/dev/null ; then
-    echo "⚠️  Port 5000 is already in use. The app might not start properly."
+# Check if port 6666 is available
+if lsof -Pi :6666 -sTCP:LISTEN -t >/dev/null ; then
+    echo "⚠️  Port 6666 is already in use. The app might not start properly."
     echo "   You can change the port in app.py if needed."
 fi
 
@@ -45,7 +45,7 @@ echo ""
 echo "✅ Setup complete!"
 echo "🌐 Starting web server..."
 echo ""
-echo "📱 Open your browser and go to: http://localhost:5000"
+echo "📱 Open your browser and go to: http://localhost:6666"
 echo "🛑 Press Ctrl+C to stop the server"
 echo ""
 
