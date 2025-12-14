@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KaspaMine Income Calculator</title>
+    <title>Crypto Mining Income Calculator - Kaspa & Zcash</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -241,6 +241,39 @@
             cursor: not-allowed;
         }
 
+        .coin-toggle {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .coin-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .coin-toggle.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .coin-section {
+            display: none;
+        }
+
+        .coin-section.show {
+            display: block;
+        }
+
         footer {
             text-align: center;
             padding: 30px;
@@ -295,8 +328,21 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-coins"></i> KaspaMine Calculator</h1>
-            <p class="subtitle">Real-Time Income Projections for IceRiver KS5M Miners</p>
+            <h1><i class="fas fa-coins"></i> Crypto Mining Calculator</h1>
+            <p class="subtitle">Real-Time Income Projections for Kaspa & Zcash Mining</p>
+
+            <!-- Coin Selection -->
+            <div style="margin-top: 20px;">
+                <button class="coin-toggle active" data-coin="both" onclick="selectCoin('both')">
+                    <i class="fas fa-layer-group"></i> Both Coins
+                </button>
+                <button class="coin-toggle" data-coin="kaspa" onclick="selectCoin('kaspa')">
+                    <i class="fas fa-k"></i> Kaspa Only
+                </button>
+                <button class="coin-toggle" data-coin="zcash" onclick="selectCoin('zcash')">
+                    <i class="fas fa-z"></i> Zcash Only
+                </button>
+            </div>
         </header>
 
         <div id="loading" class="loading show">
@@ -414,16 +460,30 @@
 
     <script>
         let currentData = null;
+        let selectedCoin = 'both';
 
         // Load data on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
         });
 
+        function selectCoin(coin) {
+            selectedCoin = coin;
+
+            // Update button states
+            document.querySelectorAll('.coin-toggle').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-coin="${coin}"]`).classList.add('active');
+
+            // Reload data with new coin selection
+            loadData();
+        }
+
         async function loadData() {
             try {
                 setStatus('updating', 'Loading data...');
-                const response = await fetch('/api/calculator');
+                const response = await fetch(`/api/calculator?coins=${selectedCoin}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -450,7 +510,7 @@
 
             try {
                 setStatus('updating', 'Refreshing data...');
-                const response = await fetch('/api/refresh');
+                const response = await fetch(`/api/refresh?coins=${selectedCoin}`);
                 const data = await response.json();
 
                 if (data.error) {
