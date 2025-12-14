@@ -5,9 +5,9 @@ Fetches live data from multiple sources and calculates accurate income projectio
 
 Data Sources:
 - CoinGecko API: KAS price in GBP
-- Kaspa Explorer API: Network stats (difficulty, hashrate, block reward)
+- 2Miners API: Network hashrate and difficulty
+- Kaspa API: Real block reward (updates with emission schedule)
 - Pool APIs: EMCD, 2Miners pool stats
-- WhatToMine: Profitability verification
 """
 
 import json
@@ -69,10 +69,11 @@ def fetch_kas_price() -> Optional[float]:
 
 def fetch_network_stats() -> Optional[Dict]:
     """
-    Fetch Kaspa network statistics from 2Miners API (REAL DATA ONLY)
+    Fetch Kaspa network statistics from 2Miners API and Kaspa API (REAL DATA ONLY)
     Returns: Dict with network_hashrate_ths, block_reward, block_time_seconds
     """
     try:
+        # Fetch network hashrate from 2Miners
         url = "https://kas.2miners.com/api/stats"
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -94,12 +95,23 @@ def fetch_network_stats() -> Optional[Dict]:
         # Get difficulty if available
         difficulty = data.get("nodes", [{}])[0].get("difficulty", 0)
 
+        # Fetch real block reward from Kaspa API
+        block_reward = 3.67  # Default fallback
+        try:
+            reward_response = requests.get("https://api.kaspa.org/info/blockreward", timeout=10)
+            reward_response.raise_for_status()
+            reward_data = reward_response.json()
+            block_reward = float(reward_data.get("blockreward", 3.67))
+            print(f"{GREEN}✓{RESET} Fetched real block reward from Kaspa API: {block_reward} KAS")
+        except Exception as e:
+            print(f"{YELLOW}⚠{RESET} Could not fetch block reward from Kaspa API: {e}, using fallback: {block_reward} KAS")
+
         stats = {
             "network_hashrate_ths": network_hashrate_hs / 1e12,  # Convert H/s to TH/s
-            "block_reward": 500,  # KAS per block (decreases slowly over time)
-            "block_time_seconds": 1,  # Kaspa block time
+            "block_reward": block_reward,  # Real block reward from Kaspa API
+            "block_time_seconds": 0.1,  # Kaspa block time (10 blocks per second after Crescendo upgrade)
             "difficulty": difficulty,
-            "source": "2Miners API (Real-time)"
+            "source": "2Miners API + Kaspa API (Real-time)"
         }
 
         print(f"{GREEN}✓{RESET} Fetched network stats from 2Miners API")
