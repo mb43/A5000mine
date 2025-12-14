@@ -689,8 +689,8 @@ if __name__ == "__main__":
     update_thread.start()
 
     print("Starting KaspaMine Income Calculator Web App...")
-    print("Open your browser to http://localhost:6666")
+    print("Open your browser to http://localhost:8080")
     print("Press Ctrl+C to stop")
 
     # Run Flask app
-    app.run(host='0.0.0.0', port=6666, debug=False)
+    app.run(host='0.0.0.0', port=8080, debug=False)
