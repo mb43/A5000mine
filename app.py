@@ -76,7 +76,7 @@ data_source_status = {
     "zcash": {
         "price": {"status": "unknown", "timestamp": None, "source": "CoinGecko API"},
         "network": {"status": "unknown", "timestamp": None, "source": "2Miners API"},
-        "block_reward": {"status": "unknown", "timestamp": None, "source": "Hardcoded (2.5 ZEC)"}
+        "block_reward": {"status": "unknown", "timestamp": None, "source": "Hardcoded (1.25 ZEC)"}
     }
 }
 
@@ -333,7 +333,7 @@ def fetch_zec_network_stats() -> Optional[Dict]:
             "network_hashrate_sol": network_hashrate_sol,  # Sol/s
             "network_hashrate_ksol": network_hashrate_sol / 1000,  # KSol/s
             "network_hashrate_msol": network_hashrate_sol / 1_000_000,  # MSol/s
-            "block_reward": 2.5,  # ZEC per block (current after Nov 2025 halving)
+            "block_reward": 1.25,  # ZEC per block (current as of 2Miners data)
             "block_time_seconds": avg_block_time,
             "difficulty": difficulty,
             "source": "2Miners API (Real-time)"
